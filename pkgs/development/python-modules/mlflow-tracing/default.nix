@@ -1,10 +1,8 @@
 {
   lib,
   buildPythonPackage,
+  fetchPypi,
   mlflow,
-
-  # build-system
-  setuptools,
 
   # dependencies
   cachetools,
@@ -15,23 +13,23 @@
   packaging,
   protobuf,
   pydantic,
-
-  # tests
-  pytestCheckHook,
 }:
 buildPythonPackage (finalAttrs: {
   pname = "mlflow-tracing";
   inherit (mlflow) version;
-  pyproject = true;
-  __structuredAttrs = true;
+  format = "wheel";
 
-  inherit (mlflow) src;
-
-  sourceRoot = "${finalAttrs.src.name}/libs/tracing";
-
-  build-system = [
-    setuptools
-  ];
+  # mlflow fetches a PyPI wheel since the JS UI is absent from the GitHub source.
+  # mlflow-tracing inherited mlflow's src, but the wheel layout is incompatible with
+  # sourceRoot builds, so we also use wheels here too.
+  src = fetchPypi {
+    pname = "mlflow_tracing";
+    inherit (finalAttrs) version;
+    format = "wheel";
+    dist = "py3";
+    python = "py3";
+    hash = "sha256-xgclU/R7QlBdx+5ilGaIpKDd6PBrePvGDpRjl7IOFRg=";
+  };
 
   dependencies = [
     cachetools

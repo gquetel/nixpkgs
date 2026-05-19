@@ -1,9 +1,8 @@
 {
+  lib,
   buildPythonPackage,
+  fetchPypi,
   mlflow,
-
-  # build-system
-  setuptools,
 
   # dependencies
   cachetools,
@@ -30,13 +29,20 @@
 
 buildPythonPackage (finalAttrs: {
   pname = "mlflow-skinny";
-  inherit (mlflow) version src;
-  pyproject = true;
-  __structuredAttrs = true;
+  inherit (mlflow) version;
+  format = "wheel";
 
-  sourceRoot = "${finalAttrs.src.name}/libs/skinny";
-
-  build-system = [ setuptools ];
+  # mlflow fetches a PyPI wheel since the JS UI is absent from the GitHub source.
+  # mlflow-skinny inherited mlflow's src, but the wheel layout is incompatible with
+  # sourceRoot builds, so we also use wheels here too.
+  src = fetchPypi {
+    pname = "mlflow_skinny";
+    inherit (finalAttrs) version;
+    format = "wheel";
+    dist = "py3";
+    python = "py3";
+    hash = "sha256-BJjzaXq8q8xiBMQy7xeYQPano0zhI4N8mMGRMGT9pt0=";
+  };
 
   dependencies = [
     cachetools
