@@ -45,6 +45,12 @@ buildPythonPackage (finalAttrs: {
 
   sourceRoot = "${finalAttrs.src.name}/libs/skinny";
 
+  # nixpkgs' setuptools is newer than upstream's pin
+  postPatch = ''
+    substituteInPlace pyproject.toml \
+      --replace-fail "setuptools<=82.0.1" "setuptools"
+  '';
+
   build-system = [ setuptools ];
 
   dependencies = [
